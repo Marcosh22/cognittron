@@ -23,7 +23,6 @@ module.exports = {
 
   // Base config
   extends: ["eslint:recommended"],
-
   overrides: [
     // React
     {
@@ -71,6 +70,9 @@ module.exports = {
         "plugin:import/recommended",
         "plugin:import/typescript",
       ],
+      rules: {
+        "@typescript-eslint/no-explicit-any": "off",
+      },
     },
 
     // Node
@@ -78,6 +80,15 @@ module.exports = {
       files: [".eslintrc.cjs"],
       env: {
         node: true,
+      },
+    },
+
+    // Shadcn
+    {
+      files: ['**/components/ui/*.tsx'], 
+      rules: {
+        'react/prop-types': [2, { ignore: ['className'] }],
+        'react-refresh/only-export-components': 'off',
       },
     },
   ],
