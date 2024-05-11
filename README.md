@@ -44,7 +44,7 @@ NEO4J_PASSWORD=
 npm run dev
 ```
 
-5. Access the application in your browser at http://localhost:3000.
+4. Access the application in your browser at http://localhost:3000.
 
 
 ## Scripts
