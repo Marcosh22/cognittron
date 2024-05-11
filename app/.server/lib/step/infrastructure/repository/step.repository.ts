@@ -5,6 +5,7 @@ import StepFactory from "../../domain/factory/step.factory";
 import NotFoundError from "../../../../errors/not-found.error";
 import TrailRepository from "../../../trail/infrastructure/repository/trail.repository";
 import ValidationError from "../../../../errors/validation.error";
+import getNodesCount from "../../../utils/getNodesCount";
 
 export default class StepRepository implements StepRepositoryInterface {
   private _driver: Driver;
@@ -31,7 +32,7 @@ export default class StepRepository implements StepRepositoryInterface {
       const result: Record = await session.executeWrite(async (tx) => {
         const query = `
           MATCH (tr:Trail { id: $trailId })
-          CREATE (s:Step { id: $id, title: $title, content: $content })
+          CREATE (s:Step { id: $id, title: $title, content: $content, createdAt: timestamp() })
           MERGE (s)-[:BELONGS_TO]->(tr)
           RETURN s
         `;
@@ -104,6 +105,7 @@ export default class StepRepository implements StepRepositoryInterface {
           MATCH (s:Step)-[:BELONGS_TO]->(tr:Trail)
           WITH s, COUNT(s) AS total, tr
           RETURN s, total, tr.id as trailId
+          ORDER BY s.createdAt DESC
           SKIP $skip
           LIMIT $limit
         `;
@@ -121,7 +123,7 @@ export default class StepRepository implements StepRepositoryInterface {
           trailId: record.get("trailId"),
         })
       );
-      const totalCount = result[0].get("total").toNumber();
+      const totalCount = await getNodesCount(this._driver, 'Step');
 
       return { data: steps, total: totalCount };
     } finally {
@@ -147,6 +149,7 @@ export default class StepRepository implements StepRepositoryInterface {
           MATCH (s:Step)-[:BELONGS_TO]->(tr:Trail { id: $trailId })
           WITH s, COUNT(s) AS total
           RETURN s, total
+          ORDER BY s.createdAt DESC
           SKIP $skip
           LIMIT $limit
         `;
@@ -164,7 +167,7 @@ export default class StepRepository implements StepRepositoryInterface {
           trailId: trailId,
         })
       );
-      const totalCount = result[0].get("total").toNumber();
+      const totalCount = await getNodesCount(this._driver, 'Step');
 
       return { data: steps, total: totalCount };
     } finally {

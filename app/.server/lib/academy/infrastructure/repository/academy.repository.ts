@@ -4,6 +4,7 @@ import AcademyRepositoryInterface from "../../domain/repository/academy.reposito
 import AcademyFactory from "../../domain/factory/academy.factory";
 import NotFoundError from "../../../../errors/not-found.error";
 import ValidationError from "../../../../errors/validation.error";
+import getNodesCount from "../../../utils/getNodesCount";
 
 export default class AcademyRepository implements AcademyRepositoryInterface {
   private _driver: Driver;
@@ -26,7 +27,7 @@ export default class AcademyRepository implements AcademyRepositoryInterface {
     try {
       const result: Record = await session.executeWrite(async (tx) => {
         const query = `
-          CREATE (a:Academy { id: $id, title: $title })
+          CREATE (a:Academy { id: $id, title: $title, createdAt: timestamp() })
           RETURN a
         `;
         const params = { id: data.id, title: data.title };
@@ -90,6 +91,7 @@ export default class AcademyRepository implements AcademyRepositoryInterface {
           MATCH (a:Academy)
           WITH a, COUNT(a) AS total
           RETURN a, total
+          ORDER BY a.createdAt DESC
           SKIP $skip
           LIMIT $limit
         `;
@@ -103,7 +105,7 @@ export default class AcademyRepository implements AcademyRepositoryInterface {
         id: record.get("a").properties.id,
         title: record.get("a").properties.title,
       }));
-      const totalCount = result[0].get("total").toNumber();
+      const totalCount = await getNodesCount(this._driver, 'Academy');
 
       return { data: academies, total: totalCount };
     } finally {

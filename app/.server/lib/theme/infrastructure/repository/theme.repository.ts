@@ -5,6 +5,7 @@ import ThemeFactory from "../../domain/factory/theme.factory";
 import NotFoundError from "../../../../errors/not-found.error";
 import AcademyRepository from "../../../academy/infrastructure/repository/academy.repository";
 import ValidationError from "../../../../errors/validation.error";
+import getNodesCount from "../../../utils/getNodesCount";
 
 export default class ThemeRepository implements ThemeRepositoryInterface {
   private _driver: Driver;
@@ -31,7 +32,7 @@ export default class ThemeRepository implements ThemeRepositoryInterface {
       const result: Record = await session.executeWrite(async (tx) => {
         const query = `
           MATCH (a:Academy { id: $academyId })
-          CREATE (t:Theme { id: $id, title: $title })
+          CREATE (t:Theme { id: $id, title: $title, createdAt: timestamp() })
           MERGE (t)-[:BELONGS_TO]->(a)
           RETURN t
         `;
@@ -101,6 +102,7 @@ export default class ThemeRepository implements ThemeRepositoryInterface {
           MATCH (t:Theme)-[:BELONGS_TO]->(a:Academy)
           WITH t, COUNT(t) AS total, a
           RETURN t, total, a.id as academyId
+          ORDER BY t.createdAt DESC
           SKIP $skip
           LIMIT $limit
         `;
@@ -117,7 +119,8 @@ export default class ThemeRepository implements ThemeRepositoryInterface {
           academyId: record.get("academyId"),
         })
       );
-      const totalCount = result[0].get("total").toNumber();
+
+      const totalCount = await getNodesCount(this._driver, 'Theme');
 
       return { data: themes, total: totalCount };
     } finally {
@@ -143,6 +146,7 @@ export default class ThemeRepository implements ThemeRepositoryInterface {
           MATCH (t:Theme)-[:BELONGS_TO]->(a:Academy { id: $academyId })
           WITH t, COUNT(t) AS total
           RETURN t, total
+          ORDER BY t.createdAt DESC
           SKIP $skip
           LIMIT $limit
         `;
@@ -159,7 +163,8 @@ export default class ThemeRepository implements ThemeRepositoryInterface {
           academyId: academyId,
         })
       );
-     const totalCount = result[0].get("total").toNumber();
+      
+      const totalCount = await getNodesCount(this._driver, 'Theme');
 
       return { data: themes, total: totalCount };
     } finally {

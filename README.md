@@ -1,36 +1,65 @@
-# Welcome to Remix + Vite!
+# Cognittron
+The Cognittron app is a differentiated course platform known for its visual maps and practical learning approach, aiming to reduce the dropout rate of traditional course platforms.
+ 
+## Getting Started
 
-📖 See the [Remix docs](https://remix.run/docs) and the [Remix Vite docs](https://remix.run/docs/en/main/guides/vite) for details on supported features.
+### Prerequisites
 
-## Development
+- Node.js
+- neo4j
 
-Run the Vite dev server:
+### Installation
 
-```shellscript
+1. Clone the repository:
+```shell
+git clone https://github.com/Marcosh22/cognittron.git
+```
+
+2. Navigate to the project's root directory:
+```shell
+cd cognittron
+```
+
+3. Install dependencies:
+```shell
+npm install
+```
+
+### Running the Applications
+
+1. Create .env file from template.env:
+```shell
+cp template.env .env
+```
+
+2. Enter enviroment variables for neo4j database credentials:
+```shell
+NEO4J_URI=
+NEO4J_USERNAME=
+NEO4J_PASSWORD=
+```
+
+3. Start development server:
+```shell
 npm run dev
 ```
 
-## Deployment
+5. Access the application in your browser at http://localhost:3000.
 
-First, build your app for production:
 
-```sh
-npm run build
-```
+## Scripts
 
-Then run the app in production mode:
+- `dev`: Run the in development mode.
+- `build`: Build for production.
+- `start`: Start the production build.
+- `lint`: Lint the application code.
+- `test`: Run tests.
 
-```sh
-npm start
-```
 
-Now you'll need to pick a host to deploy it to.
+## Technology Stack
 
-### DIY
-
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
+- Remix
+- Node.js
+- Tailwind CSS
+- TypeScript
+- Jest

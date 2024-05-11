@@ -117,8 +117,6 @@ describe("Create an Academy", () => {
 
     const output = await repository.list();
 
-    console.log(output);
-
     expect(output.data).toBeDefined();
     expect(output.data).toBeInstanceOf(Array);
     expect(output.total).toBeGreaterThan(1);

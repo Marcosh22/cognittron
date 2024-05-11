@@ -5,6 +5,7 @@ import TrailFactory from "../../domain/factory/trail.factory";
 import NotFoundError from "../../../../errors/not-found.error";
 import ThemeRepository from "../../../theme/infrastructure/repository/theme.repository";
 import ValidationError from "../../../../errors/validation.error";
+import getNodesCount from "../../../utils/getNodesCount";
 
 export default class TrailRepository implements TrailRepositoryInterface {
   private _driver: Driver;
@@ -31,7 +32,7 @@ export default class TrailRepository implements TrailRepositoryInterface {
       const result: Record = await session.executeWrite(async (tx) => {
         const query = `
           MATCH (t:Theme { id: $themeId })
-          CREATE (tr:Trail { id: $id, title: $title })
+          CREATE (tr:Trail { id: $id, title: $title, createdAt: timestamp() })
           MERGE (tr)-[:BELONGS_TO]->(t)
           RETURN tr
         `;
@@ -101,6 +102,7 @@ export default class TrailRepository implements TrailRepositoryInterface {
           MATCH (tr:Trail)-[:BELONGS_TO]->(t:Theme)
           WITH tr, COUNT(tr) AS total, t
           RETURN tr, total, t.id as themeId
+          ORDER BY tr.createdAt DESC
           SKIP $skip
           LIMIT $limit
         `;
@@ -117,7 +119,7 @@ export default class TrailRepository implements TrailRepositoryInterface {
           themeId: record.get("themeId"),
         })
       );
-      const totalCount = result[0].get("total").toNumber();
+      const totalCount = await getNodesCount(this._driver, 'Trail');
 
       return { data: trails, total: totalCount };
     } finally {
@@ -143,6 +145,7 @@ export default class TrailRepository implements TrailRepositoryInterface {
           MATCH (tr:Trail)-[:BELONGS_TO]->(t:Theme { id: $themeId })
           WITH tr, COUNT(tr) AS total
           RETURN tr, total
+          ORDER BY tr.createdAt DESC
           SKIP $skip
           LIMIT $limit
         `;
@@ -159,7 +162,7 @@ export default class TrailRepository implements TrailRepositoryInterface {
           themeId: themeId,
         })
       );
-      const totalCount = result[0].get("total").toNumber();
+      const totalCount = await getNodesCount(this._driver, 'Trail');
 
       return { data: trails, total: totalCount };
     } finally {

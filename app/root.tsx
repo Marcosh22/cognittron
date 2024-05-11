@@ -4,25 +4,22 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigation,
 } from "@remix-run/react";
 
 import type { LinksFunction } from "@remix-run/node";
-import styles  from "./globals.css?url";
-import { initializeData } from "./.server/actions";
+import styles from "./globals.css?url";
 import Container from "./components/Container/Container";
+import Loader from "./components/Loader/Loader";
+import { Toaster } from "./components/ui/toaster";
 
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: styles  },
-];
-
-export const loader = async () => {
-  await initializeData();
-  return null;
-};
+export const links: LinksFunction = () => [{ rel: "stylesheet", href: styles }];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const navigation = useNavigation();
+
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -35,6 +32,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </main>
         <ScrollRestoration />
         <Scripts />
+        <Toaster />
+       <Loader show={navigation.state === "loading" || navigation.state === "submitting"} />
       </body>
     </html>
   );
